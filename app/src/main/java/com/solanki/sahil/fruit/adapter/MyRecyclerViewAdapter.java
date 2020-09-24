@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.solanki.sahil.fruit.R;
-import com.solanki.sahil.fruit.model.Model;
+import com.solanki.sahil.fruit.database.Model;
 
 import java.util.List;
 
@@ -29,12 +29,11 @@ public class MyRecyclerViewAdapter extends RecyclerView
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.items,parent,false));
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.items, parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-
         holder.name.setText(mList.get(position).getName());
         holder.email.setText(mList.get(position).getEmail());
         holder.date.setText(mList.get(position).getDate());
@@ -47,13 +46,12 @@ public class MyRecyclerViewAdapter extends RecyclerView
         return mList.size();
     }
 
-//    public void getAllGames(List<Model> list) {
-//        this.mList = list;
-//    }
+    public void getCommitList(List<Model> list) {
+        this.mList = list;
+    }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder
-    {
-        public TextView name, email, date, message ;
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        public TextView name, email, date, message;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

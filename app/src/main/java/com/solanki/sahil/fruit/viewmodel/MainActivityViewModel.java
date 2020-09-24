@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
-import com.solanki.sahil.fruit.model.Model;
+import com.solanki.sahil.fruit.database.Model;
 import com.solanki.sahil.fruit.repository.UserRepository;
 
 import java.util.List;
@@ -19,19 +19,16 @@ public class MainActivityViewModel extends AndroidViewModel {
 
     public MainActivityViewModel(@NonNull Application application) {
         super(application);
+        repository = UserRepository.getInstance(application);
+        list = repository.getList();
     }
 
     public void init(Context context) {
-        if(list !=null){
-            return;
-        }
-        repository = UserRepository.getInstance(context);
-        list = repository.getRepo();
+        repository.makeRequestCall(context);
     }
 
 
-    public LiveData<List<Model>> getList()
-    {
+    public LiveData<List<Model>> getList() {
         return list;
     }
 }

@@ -8,15 +8,11 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Context;
 import android.content.res.Configuration;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 
 import com.solanki.sahil.fruit.adapter.MyRecyclerViewAdapter;
-import com.solanki.sahil.fruit.model.Model;
-import com.solanki.sahil.fruit.repository.UserRepository;
+import com.solanki.sahil.fruit.database.Model;
 import com.solanki.sahil.fruit.viewmodel.MainActivityViewModel;
 
 import java.util.ArrayList;
@@ -27,7 +23,6 @@ public class MainActivity extends AppCompatActivity {
     private List<Model> mList;
     private MyRecyclerViewAdapter adapter;
     private RecyclerView recyclerView;
-    private UserRepository repository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,29 +36,20 @@ public class MainActivity extends AppCompatActivity {
         viewModel.getList().observe(this, new Observer<List<Model>>() {
             @Override
             public void onChanged(List<Model> list) {
-//                recyclerView.setAdapter(adapter);
-//                adapter.getAllGames(games);
-                setRecyclerView(list);
+                recyclerView.setAdapter(adapter);
+                adapter.getCommitList(list);
             }
         });
     }
 
-    private void setRecyclerView(List<Model> list) {
-        adapter = new MyRecyclerViewAdapter(MainActivity.this,list);
-        recyclerView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
-
-    }
 
     private void initialize() {
-//        repository = new UserRepository(getApplication());
-//        mList = new ArrayList<>();
-//
-//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-//        recyclerView.setHasFixedSize(true);
-//        adapter = new MyRecyclerViewAdapter(this, mList);
-
         recyclerView = findViewById(R.id.recyclerview);
+        mList = new ArrayList<>();
+        adapter = new MyRecyclerViewAdapter(MainActivity.this, mList);
+        adapter.notifyDataSetChanged();
+
+
         if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
         } else {

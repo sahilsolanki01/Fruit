@@ -1,10 +1,17 @@
-package com.solanki.sahil.fruit.model;
+package com.solanki.sahil.fruit.database;
 
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity(tableName = "commit")
 public class Model {
+    @NonNull
+    @PrimaryKey(autoGenerate = true)
+    private int Id;
+
     private String name, email, date, message;
 
-    public Model() {
-    }
 
     public Model(String name, String email, String date, String message) {
         this.name = name;
@@ -43,5 +50,13 @@ public class Model {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public int getId() {
+        return Id;
+    }
+
+    public void setId(int id) {
+        Id = id;
     }
 }

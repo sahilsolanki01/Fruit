@@ -3,13 +3,16 @@ package com.solanki.sahil.fruit.repository;
 import android.app.Application;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.util.Log;
-import android.view.View;
-import android.widget.ProgressBar;
+import android.widget.Toast;
 
-import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.LiveData;
 
-import com.solanki.sahil.fruit.model.Model;
+import com.solanki.sahil.fruit.database.Dao;
+import com.solanki.sahil.fruit.database.Model;
+import com.solanki.sahil.fruit.database.MyDatabase;
+
 import com.solanki.sahil.fruit.network.RetrofitInstance;
 
 import org.json.JSONArray;
@@ -24,64 +27,28 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class UserRepository {
-//    public com.solanki.sahil.trivaapp.database.Dao dao;
-//    public LiveData<List<Games>> getAllGames;
-//    private MyDatabase database;
-//
-//
-//    public UserRepository(Application application){
-//        database = MyDatabase.getInstance(application);
-//        dao = database.dao();
-//        getAllGames = dao.getAllGames();
-//
-//    }
-//
-//    public void addGame(List<Games> games){
-//
-//        new InsertAsyncTask(dao).execute(games);
-//    }
-//
-//    public LiveData<List<Games>> getAllGames(){
-//        return getAllGames;
-//    }
-//
-//
-//    private static class InsertAsyncTask extends AsyncTask<List<Games>,Void,Void> {
-//        private Dao dao;
-//
-//        public InsertAsyncTask(Dao dao)
-//        {
-//            this.dao = dao;
-//        }
-//        @Override
-//        protected Void doInBackground(List<Games>... lists) {
-//            dao.addGame(lists[0]);
-//            return null;
-//        }
-//    }
-
     private static UserRepository instance;
     private ArrayList<Model> dataSet = new ArrayList<>();
-    private MutableLiveData<List<Model>> data = new MutableLiveData<>();
-    private ProgressDialog mProgressBar;
+    private LiveData<List<Model>> list;
+    private MyDatabase database;
+    private Dao dao;
 
 
-    public static UserRepository getInstance(Context context) {
+    public static UserRepository getInstance(Application application) {
         if (instance == null) {
-            instance = new UserRepository(context);
+            instance = new UserRepository(application);
         }
         return instance;
     }
 
-
-    private UserRepository(Context context) {
-        mProgressBar = new ProgressDialog(context);
-        mProgressBar.setMessage("Data Being Loading ...");
-        mProgressBar.show();
+    public UserRepository(Application application) {
+        database = MyDatabase.getInstance(application);
+        dao = database.dao();
+        list = dao.getListFromTable();
     }
 
 
-    public MutableLiveData<List<Model>> getRepo() {
+    public void makeRequestCall(final Context context) {
         Call<ResponseBody> call = new RetrofitInstance().getApi().searchRepo("retrofit");
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -102,7 +69,6 @@ public class UserRepository {
                         call2.enqueue(new Callback<ResponseBody>() {
                             @Override
                             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                mProgressBar.dismiss();
                                 if (response.isSuccessful()) {
                                     try {
                                         String result = response.body().string();
@@ -124,36 +90,62 @@ public class UserRepository {
                                             Model model = new Model(name, email, date, message);
                                             dataSet.add(model);
                                         }
-                                        data.setValue(dataSet);
+                                        insert(dataSet);
                                     } catch (Exception e) {
                                         e.printStackTrace();
+                                        Toast.makeText(context, " " + e.getMessage(), Toast.LENGTH_LONG).show();
                                     }
                                 } else {
-
+                                    Toast.makeText(context, " " + response.message(), Toast.LENGTH_LONG).show();
                                 }
                             }
 
                             @Override
                             public void onFailure(Call<ResponseBody> call, Throwable t) {
                                 t.printStackTrace();
+                                Toast.makeText(context, " " + t.getMessage(), Toast.LENGTH_LONG).show();
                             }
                         });
 
                     } catch (Exception e) {
                         e.printStackTrace();
+                        Toast.makeText(context, " " + e.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 } else {
-
+                    Toast.makeText(context, " " + response.message(), Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 t.printStackTrace();
+                Toast.makeText(context, " " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
+    }
 
-        return data;
+    public void insert(List<Model> list) {
+
+        new InsertAsyncTask(dao).execute(list);
+    }
+
+    public LiveData<List<Model>> getList() {
+        return list;
+    }
+
+
+    private static class InsertAsyncTask extends AsyncTask<List<Model>, Void, Void> {
+        private Dao dao;
+
+        public InsertAsyncTask(Dao dao) {
+            this.dao = dao;
+        }
+
+        @Override
+        protected Void doInBackground(List<Model>... lists) {
+            dao.insertListToTable(lists[0]);
+            return null;
+        }
     }
 
 }
